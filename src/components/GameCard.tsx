@@ -34,7 +34,10 @@ export function GameCard({
   const handleRemoveFromCollection = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    onRemoveFromCollection?.(game.id);
+    console.log('Remove button clicked for game:', game.id, game.name);
+    if (onRemoveFromCollection) {
+      onRemoveFromCollection(game.id);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
@@ -56,6 +59,11 @@ export function GameCard({
         className
       )}
       aria-label={`View details for ${game.name}`}
+      onClick={(e) => {
+        // Don't prevent default here, let the link work normally
+        // But stop propagation to prevent interference with buttons
+        e.stopPropagation();
+      }}
     >
       {/* Game Cover */}
       <div className={cn(
@@ -87,14 +95,19 @@ export function GameCard({
         )}
 
         {/* Action Buttons */}
-        <div className="absolute bottom-2 right-2 flex gap-1">
+        <div className="absolute bottom-2 right-2 flex gap-1 z-20">
           {showRemoveButton ? (
             <button
               onClick={handleRemoveFromCollection}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
               onKeyDown={(e) => handleKeyDown(e, () => onRemoveFromCollection?.(game.id))}
-              className="p-1.5 bg-gray-200 hover:bg-gray-600 text-black rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+              className="p-1.5 bg-red-100 hover:bg-red-500 text-red-600 hover:text-white rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 z-10 relative"
               title="Remove from collection"
               aria-label={`Remove ${game.name} from collection`}
+              type="button"
             >
               <Trash2 className="w-4 h-4" />
             </button>

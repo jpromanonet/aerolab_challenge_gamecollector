@@ -18,12 +18,23 @@ export const SortTabs = ({ value, onChange }: SortTabsProps) => {
       {options.map((option) => (
         <button
           key={option.value}
-          onClick={() => onChange(option.value)}
-          className={`px-4 py-2 text-sm font-medium transition-colors ${
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            e.nativeEvent.stopImmediatePropagation();
+            console.log('SortTabs button clicked:', option.value);
+            onChange(option.value);
+          }}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          className={`px-4 py-2 text-sm font-medium transition-colors border ${
             value === option.value
-              ? "bg-violet-900 text-white"
-              : " text-violet-900 "
+              ? "bg-violet-900 text-white border-violet-900"
+              : "bg-white text-violet-900 border-violet-900 hover:bg-violet-50"
           } ${classes.custom_tab}`}
+          type="button"
         >
           {option.label}
         </button>

@@ -14,7 +14,7 @@ import { UserMenu } from "@/components/Auth/UserMenu";
 import { MobileMenu } from "@/components/Auth/MobileMenu";
 import Image from "next/image";
 import { format } from "date-fns";
-import toast from "react-hot-toast";
+
 
 interface GameDetailClientProps {
   slug: string;
@@ -130,13 +130,9 @@ export default function GameDetailClient({ slug }: GameDetailClientProps) {
     if (!game) return;
 
     try {
-      const success = await addToCollection(game);
-      if (success) {
-        toast.success(`${game.name} added to your collection!`);
-      }
+      await addToCollection(game);
     } catch (error) {
       console.error("Error adding to collection:", error);
-      toast.error("Failed to add game to collection");
     }
   };
 
@@ -145,10 +141,8 @@ export default function GameDetailClient({ slug }: GameDetailClientProps) {
 
     try {
       await removeFromCollection(game.id);
-      toast.success(`${game.name} removed from your collection`);
     } catch (error) {
       console.error("Error removing from collection:", error);
-      toast.error("Failed to remove game from collection");
     }
   };
 

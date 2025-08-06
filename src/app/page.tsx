@@ -128,7 +128,7 @@ export default function HomePage() {
           </div>
         ) : sortedCollection.length > 0 ? (
           <>
-            <SortTabs sortBy={sortBy} onSortChange={setSortBy} />
+            <SortTabs value={sortBy} onChange={setSortBy} />
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-4">
               {sortedCollection.map((game) => (
                 <GameCard
@@ -136,6 +136,7 @@ export default function HomePage() {
                   game={game}
                   isInCollection={isInCollection(game.id)}
                   onRemoveFromCollection={() => removeFromCollection(game.id)}
+                  showRemoveButton={true}
                   small={true}
                 />
               ))}

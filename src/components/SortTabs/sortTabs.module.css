@@ -1,3 +1,11 @@
 .custom_tab{
     border-radius: 100px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    position: relative;
+    z-index: 10;
+    pointer-events: auto;
 }
