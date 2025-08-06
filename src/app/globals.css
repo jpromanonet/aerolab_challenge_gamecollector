@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+.main {
+  background: url("/background.svg") top center no-repeat;
+  background-size: 100% auto;
+}
+
+.saved_games_title {
+  background: linear-gradient(273.17deg, #6727A6 8.25%, #3C1661 91.72%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+  padding: 2px 0;
+  margin-top: 25px;
+}
+
+.gradient-text {
+  background: linear-gradient(273.17deg, #6727A6 8.25%, #3C1661 91.72%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+}
+
+.button_primary {
+  border-radius: 30px;
+  height: 40px ;
+}
+
+/* Skip link for accessibility */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: #6727A6;
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 1000;
+  transition: top 0.3s;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* Focus styles for better accessibility */
+.focus-visible:focus {
+  outline: 2px solid #6727A6;
+  outline-offset: 2px;
+}
+
+/* Reduced motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
