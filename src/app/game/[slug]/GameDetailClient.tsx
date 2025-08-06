@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { GameCard } from "@/components/GameCard";
 import { SearchBar } from "@/components/SearchBar/SearchBar";
 import { Logo } from "@/components/Logo/Logo";
-import { ArrowLeft, Heart, Calendar, Star, Monitor, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, Heart, Calendar, Star, Monitor, Image as ImageIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { Game, CollectedGame } from "@/types/game";
 import { useGameCollection } from "@/hooks/useGameCollection";
 import { useAuth } from "@/contexts/AuthContext";
@@ -28,6 +28,8 @@ export default function GameDetailClient({ slug }: GameDetailClientProps) {
   const [currentScreenshotIndex, setCurrentScreenshotIndex] = useState(0);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
   const router = useRouter();
   const { user } = useAuth();
@@ -154,6 +156,64 @@ export default function GameDetailClient({ slug }: GameDetailClientProps) {
   const handleSignUpClick = () => {
     setAuthMode('signup');
     setShowAuthModal(true);
+  };
+
+  // Screenshot navigation functions
+  const nextScreenshot = () => {
+    if (game?.screenshots) {
+      setCurrentScreenshotIndex((prev) => 
+        prev === game.screenshots!.length - 1 ? 0 : prev + 1
+      );
+    }
+  };
+
+  const prevScreenshot = () => {
+    if (game?.screenshots) {
+      setCurrentScreenshotIndex((prev) => 
+        prev === 0 ? game.screenshots!.length - 1 : prev - 1
+      );
+    }
+  };
+
+  // Touch/swipe handlers
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe) {
+      nextScreenshot();
+    }
+    if (isRightSwipe) {
+      prevScreenshot();
+    }
+  };
+
+  // Keyboard navigation
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!game?.screenshots || game.screenshots.length <= 1) return;
+    
+    switch (e.key) {
+      case 'ArrowLeft':
+        e.preventDefault();
+        prevScreenshot();
+        break;
+      case 'ArrowRight':
+        e.preventDefault();
+        nextScreenshot();
+        break;
+    }
   };
 
   const isCollected = game ? isInCollection(game.id) : false;
@@ -300,19 +360,64 @@ export default function GameDetailClient({ slug }: GameDetailClientProps) {
             <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
               <ImageIcon className="w-6 h-6" />
               <span>Screenshots</span>
+              {game.screenshots.length > 1 && (
+                <span className="text-sm font-normal text-gray-600 ml-2">
+                  (Use arrows, swipe, or click dots to navigate)
+                </span>
+              )}
             </h2>
             
             <div className="relative">
-              <div className="relative aspect-video rounded-lg overflow-hidden shadow-lg">
+              <div 
+                className="relative aspect-video rounded-lg overflow-hidden shadow-lg"
+                onTouchStart={onTouchStart}
+                onTouchMove={onTouchMove}
+                onTouchEnd={onTouchEnd}
+                onKeyDown={handleKeyDown}
+                tabIndex={0}
+                role="region"
+                aria-label="Screenshot gallery"
+              >
                 <Image
                   src={game.screenshots[currentScreenshotIndex].url}
                   alt={`Screenshot ${currentScreenshotIndex + 1} of ${game.name}`}
                   fill
-                  className="object-cover"
+                  className="object-cover transition-opacity duration-300"
                   sizes="(max-width: 768px) 100vw, 50vw"
                 />
+                
+                {/* Navigation Arrows */}
+                {game.screenshots.length > 1 && (
+                  <>
+                    {/* Previous Button */}
+                    <button
+                      onClick={prevScreenshot}
+                      className="absolute left-2 md:left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-2 md:p-3 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 z-10 hover:scale-110"
+                      aria-label="Previous screenshot"
+                    >
+                      <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
+                    </button>
+                    
+                    {/* Next Button */}
+                    <button
+                      onClick={nextScreenshot}
+                      className="absolute right-2 md:right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-2 md:p-3 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 z-10 hover:scale-110"
+                      aria-label="Next screenshot"
+                    >
+                      <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
+                    </button>
+                  </>
+                )}
               </div>
               
+              {/* Screenshot Counter */}
+              {game.screenshots.length > 1 && (
+                <div className="absolute top-2 md:top-4 right-2 md:right-4 bg-black bg-opacity-75 text-white px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium z-10">
+                  {currentScreenshotIndex + 1} / {game.screenshots.length}
+                </div>
+              )}
+              
+              {/* Dot Indicators */}
               {game.screenshots.length > 1 && (
                 <div className="flex justify-center space-x-2 mt-4">
                   {game.screenshots.map((_, index) => (
